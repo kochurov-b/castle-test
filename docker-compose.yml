@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+    container_name: castle-client
+    command: serve -s build -l 3000
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - server
+    networks:
+      - castle_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    container_name: castle-server
+    command: node ./build/src/app.js
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/api
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+    networks:
+      - castle_network
+
+  mongo:
+    image: mongo:4.4.1-bionic
+    container_name: castle-mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_api:/data/db
+    networks:
+      - castle_network
+
+volumes:
+  mongo_api:
+
+networks:
+  castle_network:
+    driver: bridge
