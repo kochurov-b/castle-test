@@ -32,19 +32,15 @@ export const useApp = (): TUseAppExpected => {
   const handleToggleShowAll: TOnToggleShowAll = () =>
     setShowAll((prevState) => !prevState);
 
-  const actionFactory: TActionFactory = (reminder) => ({
-    [EAction.Create]: () => {
-      const { title, date, complete } = reminder;
+  const actionFactory: TActionFactory = (reminder) => {
+    const { id, title, date, complete } = reminder;
 
-      createReminder({ title, date, complete });
-    },
-    [EAction.Update]: () => updateReminder(reminder),
-    [EAction.Delete]: () => {
-      const { id } = reminder;
-
-      return deleteReminder(id);
-    },
-  });
+    return {
+      [EAction.Create]: () => createReminder({ title, date, complete }),
+      [EAction.Update]: () => updateReminder(reminder),
+      [EAction.Delete]: () => deleteReminder(id),
+    };
+  };
 
   return {
     reminders,
