@@ -8,8 +8,6 @@ services:
     container_name: castle-client
     command: serve -s build -l 3000
     restart: unless-stopped
-    ports:
-      - '3000:3000'
     depends_on:
       - server
     networks:
@@ -24,8 +22,6 @@ services:
     restart: unless-stopped
     environment:
       - MONGO_URI=mongodb://mongo:27017/api
-    ports:
-      - '5000:5000'
     depends_on:
       - mongo
     networks:
@@ -38,6 +34,20 @@ services:
       - '27017:27017'
     volumes:
       - mongo_api:/data/db
+    networks:
+      - castle_network
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: castle-nginx
+    ports:
+      - '80:80'
+    restart: unless-stopped
+    volumes:
+      - './nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf'
+    depends_on:
+      - client
+      - server
     networks:
       - castle_network
 
