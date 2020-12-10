@@ -1,8 +1,12 @@
-import { SyntheticEvent } from 'react';
+import { ChangeEvent, SyntheticEvent, FocusEvent } from 'react';
 
-export type TOnChangeDate = (data: Date | null) => void;
+import { TReminder } from '../../apollo/reminder/reminder.types';
 
-export type TOnDelete = (id: number) => void;
+export enum EAction {
+  Create = 'create',
+  Update = 'update',
+  Delete = 'delete',
+}
 
 export type TOnChangeDateSingle = (
   date: Date | [Date, Date] | null,
@@ -10,3 +14,13 @@ export type TOnChangeDateSingle = (
 ) => void;
 
 export type TDate = Date | null;
+
+export type TOnChange = (action: EAction, reminder: TReminder) => void;
+
+export type TOnChangeTitle = (e: ChangeEvent<HTMLInputElement>) => void;
+
+export type TOnBlurTitle = (e: FocusEvent<HTMLInputElement>) => void;
+
+export type TOnChangeCompleteCustom = (
+  e: ChangeEvent<HTMLInputElement>,
+) => void;

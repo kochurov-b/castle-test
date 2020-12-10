@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC, memo, MouseEvent } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -13,31 +13,34 @@ import {
   DeleteButton,
   Path,
   Icon,
+  Plus,
+  PlusPath,
+  PlusSvg,
 } from './Reminder.styles';
 import {
-  TOnChangeDate,
-  TOnDelete,
   TOnChangeDateSingle,
   TDate,
+  TOnChange,
+  TOnChangeTitle,
+  TOnBlurTitle,
+  TOnChangeCompleteCustom,
 } from './Reminder.types';
 import { useReminder } from './Reminder.hook';
+import { TReminder } from '../../apollo/reminder/reminder.types';
 
-interface ICommonProps {
+type TProps = {
+  reminder: TReminder;
+  onChange: TOnChange;
+};
+
+type TRenderHeaderArgs = {
   title: string;
   date: TDate;
   complete: boolean;
-}
-
-interface IProps extends ICommonProps {
-  id: number;
-  onDelete: TOnDelete;
-  onChangeComplete: () => void;
-  onChangeDate: TOnChangeDate;
-}
-
-interface IRenderHeaderArgs extends ICommonProps {
+  onChangeTitle: TOnChangeTitle;
   onFocusInput: () => void;
-}
+  onBlurTitle: TOnBlurTitle;
+};
 
 type TRenderActionsArgs = {
   expanded: boolean;
@@ -45,16 +48,29 @@ type TRenderActionsArgs = {
   onChangeDateSingle: TOnChangeDateSingle;
 };
 
-type TRenderHeader = (args: IRenderHeaderArgs) => JSX.Element;
+type TRenderHeader = (args: TRenderHeaderArgs) => JSX.Element;
 
 type TRenderActions = (args: TRenderActionsArgs) => JSX.Element;
 
-type TRenderDeleteButton = (id: number, onDelete: TOnDelete) => JSX.Element;
+type TRenderDeleteButton = (onDelete: TOnDelete) => JSX.Element;
 
 type TGenerateDateFormat = (date: TDate) => string;
 
-const generateDateFormat: TGenerateDateFormat = (date) => {
-  if (date !== null) {
+type TOnDelete = (
+  e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
+) => void;
+
+type TRenderIconArgs = {
+  isReminderCreate: boolean;
+  complete: boolean;
+  onChangeCompleteCustom: TOnChangeCompleteCustom;
+};
+
+type TRenderIcon = (args: TRenderIconArgs) => JSX.Element;
+
+const generateDateFormat: TGenerateDateFormat = (dateTime) => {
+  if (dateTime !== null) {
+    const date = new Date(dateTime);
     const month = date.toLocaleString('default', { month: 'long' });
     const day = date.getDate();
 
@@ -68,13 +84,17 @@ const renderHeader: TRenderHeader = ({
   title,
   date,
   complete,
+  onChangeTitle,
   onFocusInput,
+  onBlurTitle,
 }) => (
   <Header>
     <Input
       complete={complete}
-      defaultValue={title}
+      value={title}
+      onChange={onChangeTitle}
       onFocus={onFocusInput}
+      onBlur={onBlurTitle}
       disabled={complete}
     />
     {date && <DateView>{generateDateFormat(date)}</DateView>}
@@ -99,45 +119,68 @@ const renderActions: TRenderActions = ({
   </Actions>
 );
 
-const renderDeleteButton: TRenderDeleteButton = (id, onDelete) => (
-  <DeleteButton onClick={() => onDelete(id)}>
+const renderDeleteButton: TRenderDeleteButton = (onDelete) => (
+  <DeleteButton onClick={onDelete}>
     <Icon viewBox="0 0 40 40">
       <Path d="M 10,10 L 30,30 M 30,10 L 10,30" />
     </Icon>
   </DeleteButton>
 );
 
-export const Reminder: FC<IProps> = memo(
-  ({ id, title, date, complete, onDelete, onChangeComplete, onChangeDate }) => {
-    const {
-      expanded,
-      reminderRef,
-      onFocusInput,
-      onChangeDateSingle,
-      onChangeCompleteCustom,
-    } = useReminder(onChangeDate, onChangeComplete);
-
-    return (
-      <Main complete={complete} ref={reminderRef}>
-        <Checkbox
-          checked={complete}
-          onChange={() => onChangeCompleteCustom()}
-        />
-        <Content>
-          {renderHeader({
-            title,
-            date,
-            complete,
-            onFocusInput,
-          })}
-          {renderActions({
-            expanded,
-            date,
-            onChangeDateSingle,
-          })}
-        </Content>
-        {renderDeleteButton(id, onDelete)}
-      </Main>
-    );
-  },
+const renderIconPlus = () => (
+  <Plus>
+    <PlusSvg viewBox="0 0 24 24">
+      <PlusPath d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"></PlusPath>
+    </PlusSvg>
+  </Plus>
 );
+
+const renderIcon: TRenderIcon = ({
+  isReminderCreate,
+  complete,
+  onChangeCompleteCustom,
+}) =>
+  isReminderCreate ? (
+    renderIconPlus()
+  ) : (
+    <Checkbox checked={complete} onChange={onChangeCompleteCustom} />
+  );
+
+export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
+  const { id, date, complete } = reminder;
+  const isReminderCreate: boolean = id === '';
+
+  const {
+    title,
+    expanded,
+    reminderRef,
+    onDelete,
+    onChangeTitle,
+    onFocusInput,
+    onBlurTitle,
+    onChangeDateSingle,
+    onChangeCompleteCustom,
+  } = useReminder(reminder, onChange);
+
+  return (
+    <Main complete={complete} ref={reminderRef}>
+      {renderIcon({ isReminderCreate, complete, onChangeCompleteCustom })}
+      <Content>
+        {renderHeader({
+          title,
+          date,
+          complete,
+          onChangeTitle,
+          onFocusInput,
+          onBlurTitle,
+        })}
+        {renderActions({
+          expanded,
+          date,
+          onChangeDateSingle,
+        })}
+      </Content>
+      {!isReminderCreate && renderDeleteButton(onDelete)}
+    </Main>
+  );
+});
