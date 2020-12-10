@@ -1,10 +1,12 @@
-export type TReminder = {
-  id: number;
-  title: string;
-  date?: Date | null;
-  complete: boolean;
-};
+import { MouseEvent } from 'react';
 
-export type TOnChangeComplete = (index: number) => void;
+import { TReminder } from '../../apollo/reminder/reminder.types';
+import { EAction } from '../Reminder/Reminder.types';
 
-export type TOnChangeDate = (date: Date | null, index: number) => void;
+export type TActionFactory = (
+  reminder: TReminder,
+) => Record<EAction, () => void>;
+
+export type TOnToggleShowAll = (
+  e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
+) => void;

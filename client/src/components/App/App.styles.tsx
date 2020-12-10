@@ -9,9 +9,11 @@ export const Main = styled.div`
 `;
 
 export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  max-width: 550px;
-  height: 700px;
+  max-width: 650px;
+  height: calc(100vh - 80px);
   padding: 40px 60px;
   background-color: #232425;
 `;
@@ -62,10 +64,31 @@ export const Info = styled.div`
   border-bottom: 2px solid #363738;
 `;
 
-export const Count = styled.span`
+export const TasksNumber = styled.span`
   display: block;
   color: #eaeaea;
   font-size: 16px;
   line-height: 21px;
   font-weight: 500;
+`;
+
+export const Content = styled.div`
+  height: 100%;
+  overflow-y: scroll;
+`;
+
+export const Loading = styled.span`
+  color: #eaeaea;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  lint-height: 35px;
+`;
+
+export const Error = styled.span`
+  color: red;
 `;

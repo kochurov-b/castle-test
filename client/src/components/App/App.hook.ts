@@ -1,74 +1,57 @@
-import { useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useEffect, useState } from 'react';
 
-import { TOnChangeComplete, TOnChangeDate, TReminder } from './App.types';
-
-const data: TReminder[] = [
-  {
-    id: 1,
-    title: 'Go to the hair',
-    complete: false,
-  },
-  {
-    id: 3,
-    title: 'Go home',
-    date: new Date(),
-    complete: true,
-  },
-  {
-    id: 2,
-    title: 'Hello',
-    complete: false,
-  },
-];
+import { useMutationCreateReminder } from '../../apollo/reminder/mutation/createReminder/createReminder';
+import { useMutationDeleteReminder } from '../../apollo/reminder/mutation/deleteReminder/deleteReminder';
+import { useMutationUpdateReminder } from '../../apollo/reminder/mutation/updateReminder/updateReminder';
+import { useQueryGetReminders } from '../../apollo/reminder/query/getReminders/getReminders';
+import { TReminder } from '../../apollo/reminder/reminder.types';
+import { EAction } from '../Reminder/Reminder.types';
+import { TActionFactory, TOnToggleShowAll } from './App.types';
 
 type TUseAppExpected = {
   reminders: TReminder[];
+  error: ApolloError | undefined;
   showAll: boolean;
-  onToggleShowAll: () => void;
-  onChangeComplete: TOnChangeComplete;
-  onChangeDate: TOnChangeDate;
+  loading: boolean;
+  onToggleShowAll: TOnToggleShowAll;
+  actionFactory: TActionFactory;
 };
 
 export const useApp = (): TUseAppExpected => {
+  const { reminders, loading, error, getReminders } = useQueryGetReminders();
+  const { createReminder } = useMutationCreateReminder();
+  const { updateReminder } = useMutationUpdateReminder();
+  const { deleteReminder } = useMutationDeleteReminder();
   const [showAll, setShowAll] = useState<boolean>(false);
-  const [reminders, setReminders] = useState<TReminder[]>(
-    data.sort((a, b) => (b.complete ? -1 : 1)),
-  );
 
-  const handleToggleShowAll = () => setShowAll((prevState) => !prevState);
+  useEffect(() => {
+    getReminders();
+  }, [getReminders]);
 
-  const handleChangeComplete: TOnChangeComplete = (index) => {
-    setReminders((prevState) => {
-      const newState = [...prevState];
-      const reminder = {
-        ...newState[index],
-        complete: !newState[index].complete,
-      };
-      newState.splice(index, 1);
+  const handleToggleShowAll: TOnToggleShowAll = () =>
+    setShowAll((prevState) => !prevState);
 
-      return reminder.complete
-        ? [...newState, reminder]
-        : [reminder, ...newState];
-    });
-  };
+  const actionFactory: TActionFactory = (reminder) => ({
+    [EAction.Create]: () => {
+      const { title, date, complete } = reminder;
 
-  const handleChangeDate: TOnChangeDate = (date, index) => {
-    setReminders((prevState) => {
-      const newState = [...prevState];
-      newState[index] = {
-        ...newState[index],
-        date,
-      };
+      createReminder({ title, date, complete });
+    },
+    [EAction.Update]: () => updateReminder(reminder),
+    [EAction.Delete]: () => {
+      const { id } = reminder;
 
-      return newState;
-    });
-  };
+      return deleteReminder(id);
+    },
+  });
 
   return {
     reminders,
+    error,
     showAll,
+    loading,
     onToggleShowAll: handleToggleShowAll,
-    onChangeComplete: handleChangeComplete,
-    onChangeDate: handleChangeDate,
+    actionFactory: actionFactory,
   };
 };

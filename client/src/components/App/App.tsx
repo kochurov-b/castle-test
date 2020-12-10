@@ -1,121 +1,133 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
+import { TReminder } from '../../apollo/reminder/reminder.types';
 import { Reminder } from '../Reminder/Reminder';
-import {
-  TOnChangeDate as TOnChangeDateReminder,
-  TOnDelete as TOnDeleteReminder,
-} from '../Reminder/Reminder.types';
+import { DEFAULT_REMINDER } from '../Reminder/Reminder.hook';
 import { useApp } from './App.hook';
 import {
   Button,
   Container,
-  Count,
+  TasksNumber,
   Header,
   Info,
   List,
   ListItem,
   Main,
   Title,
+  Content,
+  Loading,
+  Error,
 } from './App.styles';
-import { TOnChangeComplete, TOnChangeDate, TReminder } from './App.types';
+import { TActionFactory, TOnToggleShowAll } from './App.types';
 
-type TRenderRemindersArgs = {
-  reminders: TReminder[];
-  onChangeComplete: TOnChangeComplete;
-  onChangeDate: TOnChangeDate;
-};
+type TRenderReminders = (
+  reminders: TReminder[],
+  actionFactory: TActionFactory,
+) => JSX.Element;
 
-type TRenderReminders = (args: TRenderRemindersArgs) => JSX.Element;
-
-type TRenderReminderArgs = {
-  reminder: TReminder;
-  onDelete: TOnDeleteReminder;
-  onChangeComplete: () => void;
-  onChangeDate: TOnChangeDateReminder;
-};
-
-type TRenderReminder = (args: TRenderReminderArgs) => JSX.Element;
+type TRenderReminder = (
+  reminder: TReminder,
+  actionFactory: TActionFactory,
+) => JSX.Element;
 
 type TUpdateDataToShow = (data: TReminder[], showAll: boolean) => TReminder[];
 
-const renderReminder: TRenderReminder = ({
-  reminder,
-  onDelete,
-  onChangeComplete,
-  onChangeDate,
-}) => {
-  const { id, date } = reminder;
+type TRenderContentArgs = {
+  data: TReminder[];
+  loading: boolean;
+  actionFactory: TActionFactory;
+};
+
+type TRenderContent = (args: TRenderContentArgs) => JSX.Element;
+
+type TRenderHeaderArgs = {
+  tasksNumber: number;
+  buttonName: string;
+  onToggleShowAll: TOnToggleShowAll;
+};
+
+type TRenderHeader = (args: TRenderHeaderArgs) => JSX.Element;
+
+const renderReminder: TRenderReminder = (reminder, actionFactory) => {
+  const { id } = reminder;
 
   return (
     <ListItem key={id}>
       <Reminder
-        {...reminder}
-        date={date || null}
-        onDelete={onDelete}
-        onChangeComplete={onChangeComplete}
-        onChangeDate={onChangeDate}
+        reminder={reminder}
+        onChange={(action, reminder) => actionFactory(reminder)[action]()}
       />
     </ListItem>
   );
 };
 
-const renderReminders: TRenderReminders = ({
-  reminders,
-  onChangeComplete,
-  onChangeDate,
-}) => (
+const renderReminders: TRenderReminders = (reminders, actionFactory) => (
   <List>
-    {reminders.map((reminder, index) => {
-      const handleDelete: TOnDeleteReminder = (id) => {
-        console.log(id, index);
-      };
-
-      const handleChangeCompleteCustom = () => onChangeComplete(index);
-
-      const handleChangeDateCustom: TOnChangeDateReminder = (date) =>
-        onChangeDate(date, index);
-
-      return renderReminder({
-        reminder,
-        onDelete: handleDelete,
-        onChangeComplete: handleChangeCompleteCustom,
-        onChangeDate: handleChangeDateCustom,
-      });
-    })}
+    {reminders.map((reminder) => renderReminder(reminder, actionFactory))}
   </List>
 );
 
 const updateDataToShow: TUpdateDataToShow = (data, showAll) => {
-  if (showAll) return data;
+  const newData = [...data];
+  const lastReminder = data[data.length - 1];
+  const isEmptyData = data.length === 0;
+  const isLastNotEmpty = lastReminder && lastReminder.title !== '';
 
-  return data.filter(({ complete }) => !complete);
+  if (isEmptyData || isLastNotEmpty) {
+    newData.push(DEFAULT_REMINDER);
+  }
+
+  if (showAll) return newData.sort((a, b) => (b.complete ? -1 : 1));
+
+  return newData.filter(({ complete }) => !complete);
 };
+
+const renderContent: TRenderContent = ({ data, loading, actionFactory }) => {
+  if (loading) return <Loading>Loading ...</Loading>;
+
+  return <Content>{renderReminders(data, actionFactory)}</Content>;
+};
+
+const renderHeader: TRenderHeader = ({
+  tasksNumber,
+  buttonName,
+  onToggleShowAll,
+}) => (
+  <Header>
+    <Title>Reminders</Title>
+    <Info>
+      <TasksNumber>{tasksNumber} Tasks</TasksNumber>
+      <Button onClick={onToggleShowAll}>{buttonName}</Button>
+    </Info>
+  </Header>
+);
 
 export const App: FC = () => {
   const {
     reminders,
+    error,
     showAll,
+    loading,
     onToggleShowAll,
-    onChangeComplete,
-    onChangeDate,
+    actionFactory,
   } = useApp();
-  const buttonTitle = showAll ? 'Hide' : 'Show';
+  const buttonName = useMemo(() => (showAll ? 'Hide' : 'Show'), [showAll]);
+  const tasksNumber = useMemo(
+    () => reminders.filter(({ complete }) => !complete).length,
+    [reminders],
+  );
+  const data = useMemo(() => updateDataToShow(reminders, showAll), [
+    reminders,
+    showAll,
+  ]);
+
+  if (error) return <Error>{error.message}</Error>;
 
   return (
     <Main>
       <Container>
-        <Header>
-          <Title>Reminders</Title>
-          <Info>
-            <Count>3 Tasks</Count>
-            <Button onClick={() => onToggleShowAll()}>{buttonTitle}</Button>
-          </Info>
-        </Header>
-        {renderReminders({
-          reminders: updateDataToShow(reminders, showAll),
-          onChangeComplete,
-          onChangeDate,
-        })}
+        {renderHeader({ tasksNumber, buttonName, onToggleShowAll })}
+        {renderContent({ data, loading, actionFactory })}
       </Container>
     </Main>
   );
