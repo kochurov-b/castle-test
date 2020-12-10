@@ -63,8 +63,9 @@ export const Input = styled.input.attrs({ type: 'text' })<CommonProps>`
 `;
 
 export const Actions = styled.div<ActionsProps>`
-  margin-top: 8px;
-  display: ${({ expanded }) => (expanded ? 'block' : 'none')};
+  margin: 8px 0 0 7px;
+  height: ${({ expanded }) => (expanded ? '21px' : '0')};
+  opacity: ${({ expanded }) => (expanded ? '1' : '0')};
   transition: 0.25s;
 `;
 
