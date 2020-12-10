@@ -23,10 +23,10 @@ export const Polyline = styled.polyline``;
 
 export const CustomCheckbox = styled.div<CommonProps>`
   display: inline-block;
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
   border: 2px solid;
-  border-radius: 10px;
+  border-radius: 8px;
   border-color: ${({ checked }) => (checked ? 'transparent' : '#9c9c9d')};
   box-shadow: 0 0 0 2px transparent;
   cursor: pointer;
