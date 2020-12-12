@@ -8,7 +8,7 @@ export enum EAction {
   Delete = 'delete',
 }
 
-export type TOnChangeDateSingle = (
+export type TOnChangeDate = (
   date: Date | [Date, Date] | null,
   event: SyntheticEvent<any, Event> | undefined,
 ) => void;

@@ -1,13 +1,20 @@
-import { ChangeEvent, MutableRefObject, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { TReminder } from '../../apollo/reminder/reminder.types';
 import { useOutsideClick } from '../../hooks/useOutsideClick.hook';
 import {
   EAction,
+  TDate,
   TOnBlurTitle,
   TOnChange,
   TOnChangeCompleteCustom,
-  TOnChangeDateSingle,
+  TOnChangeDate,
   TOnChangeTitle,
 } from './Reminder.types';
 
@@ -20,13 +27,14 @@ export const DEFAULT_REMINDER = {
 
 type TUseReminderExpected = {
   title: string;
+  date: TDate;
   expanded: boolean;
   reminderRef: MutableRefObject<HTMLDivElement | null>;
   onChangeTitle: TOnChangeTitle;
   onFocusInput: () => void;
   onBlurTitle: TOnBlurTitle;
   onDelete: () => void;
-  onChangeDateSingle: TOnChangeDateSingle;
+  onChangeDate: TOnChangeDate;
   onChangeCompleteCustom: TOnChangeCompleteCustom;
 };
 
@@ -36,10 +44,34 @@ type TUseReminder = (
 ) => TUseReminderExpected;
 
 export const useReminder: TUseReminder = (reminder, onChange) => {
-  const { title: initialTitle } = reminder;
+  const {
+    id: reminderId,
+    title: reminderTitle,
+    date: reminderDate,
+    complete: reminderComplete,
+  } = reminder;
   const reminderRef = useRef<HTMLDivElement | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>(initialTitle);
+  const [title, setTitle] = useState<string>(reminderTitle);
+  const [date, setDate] = useState<TDate>(reminderDate);
+  const isReminder = reminderId !== '';
+  const isTitle = title !== '';
+
+  const createReminder = useCallback(() => {
+    if (!isReminder && isTitle) {
+      onChange(EAction.Create, { ...reminder, title, date });
+
+      setTitle('');
+      setDate(null);
+      setExpanded(false);
+    }
+  }, [isReminder, isTitle, title, reminder, date, onChange]);
+
+  useEffect(() => {
+    if (!expanded) {
+      createReminder();
+    }
+  }, [expanded, createReminder]);
 
   const handleClickOutside = () => setExpanded(false);
 
@@ -53,20 +85,24 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     setListenerToDocument();
   };
 
-  const handleChangeDateSingle: TOnChangeDateSingle = (date) => {
-    const { id: reminderId } = reminder;
+  const handleChangeDate: TOnChangeDate = (date) => {
+    if (date === null || !Array.isArray(date)) {
+      if (isTitle) {
+        setDate(date);
+      }
 
-    if ((date === null || !Array.isArray(date)) && reminderId !== '') {
-      onChange(EAction.Update, { ...reminder, date });
+      if (isReminder) {
+        onChange(EAction.Update, { ...reminder, date });
+      }
     }
   };
 
-  const handleChangeCompleteCustom = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeCompleteCustom: TOnChangeCompleteCustom = () => {
     setExpanded(false);
 
     onChange(EAction.Update, {
       ...reminder,
-      complete: !reminder.complete,
+      complete: !reminderComplete,
     });
   };
 
@@ -76,33 +112,25 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     setTitle(value);
 
   const handleBlurTitle: TOnBlurTitle = () => {
-    const { id: reminderId, title: reminderTitle } = reminder;
-
-    if (reminderId !== '' && title === '') {
+    if (isReminder && !isTitle) {
       return setTitle(reminderTitle);
     }
 
-    if (reminderId !== '') {
+    if (isReminder) {
       return onChange(EAction.Update, { ...reminder, title });
-    }
-
-    if (reminderId === '' && title !== '') {
-      onChange(EAction.Create, { ...reminder, title });
-
-      setTitle('');
-      setExpanded(false);
     }
   };
 
   return {
     title,
+    date,
     expanded,
     reminderRef,
     onChangeTitle: handleChangeTitle,
     onFocusInput: handleFocusInput,
     onBlurTitle: handleBlurTitle,
     onDelete: handleDelete,
-    onChangeDateSingle: handleChangeDateSingle,
+    onChangeDate: handleChangeDate,
     onChangeCompleteCustom: handleChangeCompleteCustom,
   };
 };

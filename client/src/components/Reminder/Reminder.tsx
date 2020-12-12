@@ -1,6 +1,4 @@
 import React, { FC, memo, MouseEvent } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
 import { Checkbox } from '../Checkbox/Checkbox';
 import {
@@ -16,9 +14,10 @@ import {
   Plus,
   PlusPath,
   PlusSvg,
+  DatePicker,
 } from './Reminder.styles';
 import {
-  TOnChangeDateSingle,
+  TOnChangeDate,
   TDate,
   TOnChange,
   TOnChangeTitle,
@@ -45,7 +44,7 @@ type TRenderHeaderArgs = {
 type TRenderActionsArgs = {
   expanded: boolean;
   date: TDate;
-  onChangeDateSingle: TOnChangeDateSingle;
+  onChangeDate: TOnChangeDate;
 };
 
 type TRenderHeader = (args: TRenderHeaderArgs) => JSX.Element;
@@ -101,17 +100,12 @@ const renderHeader: TRenderHeader = ({
   </Header>
 );
 
-const renderActions: TRenderActions = ({
-  expanded,
-  date,
-  onChangeDateSingle,
-}) => (
+const renderActions: TRenderActions = ({ expanded, date, onChangeDate }) => (
   <Actions expanded={expanded}>
     <DatePicker
       isClearable
       selected={date}
-      shouldCloseOnSelect={false}
-      onChange={onChangeDateSingle}
+      onChange={onChangeDate}
       minDate={new Date()}
       dateFormat="dd/MM/yyyy"
       placeholderText="Add date"
@@ -147,10 +141,11 @@ const renderIcon: TRenderIcon = ({
   );
 
 export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
-  const { id, date, complete } = reminder;
+  const { id, complete } = reminder;
   const isReminderCreate: boolean = id === '';
 
   const {
+    date,
     title,
     expanded,
     reminderRef,
@@ -158,7 +153,7 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
     onChangeTitle,
     onFocusInput,
     onBlurTitle,
-    onChangeDateSingle,
+    onChangeDate,
     onChangeCompleteCustom,
   } = useReminder(reminder, onChange);
 
@@ -177,7 +172,7 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
         {renderActions({
           expanded,
           date,
-          onChangeDateSingle,
+          onChangeDate,
         })}
       </Content>
       {!isReminderCreate && renderDeleteButton(onDelete)}
