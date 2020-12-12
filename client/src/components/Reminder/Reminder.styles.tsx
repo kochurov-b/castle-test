@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 type ActionsProps = {
   expanded: boolean;
@@ -7,6 +9,36 @@ type ActionsProps = {
 type CommonProps = {
   complete: boolean;
 };
+
+export const DatePicker = styled(ReactDatePicker)`
+  color: #232425;
+  border: 0;
+  padding: 4px 6px;
+  border-radius: 5px;
+  background-color: #dddddd;
+
+  & + .react-datepicker__close-icon {
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    background-color: #b86464;
+    border-radius: 5px;
+    transition: 0.25s;
+
+    &::after {
+      font-size: 17px;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    &:hover {
+      background-color: #e66969;
+    }
+  }
+`;
 
 export const DeleteButton = styled.button`
   position: absolute;
@@ -64,7 +96,7 @@ export const Input = styled.input.attrs({ type: 'text' })<CommonProps>`
 
 export const Actions = styled.div<ActionsProps>`
   margin: 8px 0 0 7px;
-  height: ${({ expanded }) => (expanded ? '21px' : '0')};
+  height: ${({ expanded }) => (expanded ? '23px' : '0')};
   opacity: ${({ expanded }) => (expanded ? '1' : '0')};
   transition: 0.25s;
 `;
