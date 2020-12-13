@@ -1,10 +1,4 @@
-import {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { TReminder } from '../../apollo/reminder/reminder.types';
 import { useOutsideClick } from '../../hooks/useOutsideClick.hook';
@@ -16,6 +10,9 @@ import {
   TOnChangeCompleteCustom,
   TOnChangeDate,
   TOnChangeTitle,
+  TOnKeyDownTitle,
+  TReminderRef,
+  TTitleRef,
 } from './Reminder.types';
 
 export const DEFAULT_REMINDER = {
@@ -29,7 +26,9 @@ type TUseReminderExpected = {
   title: string;
   date: TDate;
   expanded: boolean;
-  reminderRef: MutableRefObject<HTMLDivElement | null>;
+  reminderRef: TReminderRef;
+  titleRef: TTitleRef;
+  onKeyDownTitle: TOnKeyDownTitle;
   onChangeTitle: TOnChangeTitle;
   onFocusInput: () => void;
   onBlurTitle: TOnBlurTitle;
@@ -51,6 +50,7 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     complete: reminderComplete,
   } = reminder;
   const reminderRef = useRef<HTMLDivElement | null>(null);
+  const titleRef = useRef<HTMLInputElement | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(reminderTitle);
   const [date, setDate] = useState<TDate>(reminderDate);
@@ -121,11 +121,22 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     }
   };
 
+  const handleKeyDownTitle: TOnKeyDownTitle = ({ key }) => {
+    const { current: input } = titleRef;
+
+    if (key === 'Enter' && input !== null) {
+      input.blur();
+      createReminder();
+    }
+  };
+
   return {
     title,
     date,
     expanded,
     reminderRef,
+    titleRef,
+    onKeyDownTitle: handleKeyDownTitle,
     onChangeTitle: handleChangeTitle,
     onFocusInput: handleFocusInput,
     onBlurTitle: handleBlurTitle,

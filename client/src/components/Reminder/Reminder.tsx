@@ -1,4 +1,4 @@
-import React, { FC, memo, MouseEvent } from 'react';
+import React, { FC, memo, MouseEvent, MutableRefObject } from 'react';
 
 import { Checkbox } from '../Checkbox/Checkbox';
 import {
@@ -23,6 +23,8 @@ import {
   TOnChangeTitle,
   TOnBlurTitle,
   TOnChangeCompleteCustom,
+  TOnKeyDownTitle,
+  TTitleRef,
 } from './Reminder.types';
 import { useReminder } from './Reminder.hook';
 import { TReminder } from '../../apollo/reminder/reminder.types';
@@ -36,6 +38,8 @@ type TRenderHeaderArgs = {
   title: string;
   date: TDate;
   complete: boolean;
+  titleRef: TTitleRef;
+  onKeyDownTitle: TOnKeyDownTitle;
   onChangeTitle: TOnChangeTitle;
   onFocusInput: () => void;
   onBlurTitle: TOnBlurTitle;
@@ -83,14 +87,18 @@ const renderHeader: TRenderHeader = ({
   title,
   date,
   complete,
+  titleRef,
+  onKeyDownTitle,
   onChangeTitle,
   onFocusInput,
   onBlurTitle,
 }) => (
   <Header>
     <Input
+      ref={titleRef}
       complete={complete}
       value={title}
+      onKeyDown={onKeyDownTitle}
       onChange={onChangeTitle}
       onFocus={onFocusInput}
       onBlur={onBlurTitle}
@@ -149,7 +157,9 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
     title,
     expanded,
     reminderRef,
+    titleRef,
     onDelete,
+    onKeyDownTitle,
     onChangeTitle,
     onFocusInput,
     onBlurTitle,
@@ -165,6 +175,8 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
           title,
           date,
           complete,
+          titleRef,
+          onKeyDownTitle,
           onChangeTitle,
           onFocusInput,
           onBlurTitle,

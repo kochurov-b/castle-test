@@ -1,4 +1,10 @@
-import { ChangeEvent, SyntheticEvent, FocusEvent } from 'react';
+import {
+  ChangeEvent,
+  SyntheticEvent,
+  FocusEvent,
+  KeyboardEvent,
+  MutableRefObject,
+} from 'react';
 
 import { TReminder } from '../../apollo/reminder/reminder.types';
 
@@ -24,3 +30,9 @@ export type TOnBlurTitle = (e: FocusEvent<HTMLInputElement>) => void;
 export type TOnChangeCompleteCustom = (
   e: ChangeEvent<HTMLInputElement>,
 ) => void;
+
+export type TOnKeyDownTitle = (e: KeyboardEvent<HTMLInputElement>) => void;
+
+export type TReminderRef = MutableRefObject<HTMLDivElement | null>;
+
+export type TTitleRef = MutableRefObject<HTMLInputElement | null>;
