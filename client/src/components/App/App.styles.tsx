@@ -22,6 +22,28 @@ export const List = styled.ul`
   list-style-type: none;
   margin: 0;
   padding: 0;
+
+  .transition-enter {
+    opacity: 0.01;
+    transform: translate(0, 15px);
+  }
+
+  .transition-enter-active {
+    opacity: 1;
+    transform: translate(0, 0);
+    transition: all 250ms ease-in;
+  }
+
+  .transition-exit {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  .transition-exit-active {
+    opacity: 0.01;
+    transform: translate(0, 30px);
+    transition: all 250ms ease-in;
+  }
 `;
 
 export const ListItem = styled.li`

@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import { TReminder } from '../../apollo/reminder/reminder.types';
 import { TOnChange as TonChangeGroupByDateDate } from '../Select/Select.types';
@@ -76,19 +77,21 @@ const renderReminder: TRenderReminder = (reminder, actionFactory) => {
   const { id } = reminder;
 
   return (
-    <ListItem>
-      <Reminder
-        reminder={reminder}
-        onChange={(action, reminder) => actionFactory(reminder)[action]()}
-      />
-    </ListItem>
+    <CSSTransition key={id} timeout={250} classNames="transition">
+      <ListItem>
+        <Reminder
+          reminder={reminder}
+          onChange={(action, reminder) => actionFactory(reminder)[action]()}
+        />
+      </ListItem>
+    </CSSTransition>
   );
 };
 
 const renderReminders: TRenderReminders = (reminders, actionFactory) => (
-  <List>
+  <TransitionGroup component={List}>
     {reminders.map((reminder) => renderReminder(reminder, actionFactory))}
-  </List>
+  </TransitionGroup>
 );
 
 const renderGroup: TRenderGroup = ({ group, dateFormat, actionFactory }) =>
