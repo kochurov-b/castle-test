@@ -2,12 +2,18 @@ import styled from 'styled-components';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-type ActionsProps = {
+import { TDate } from './Reminder.types';
+
+type TActionsProps = {
   expanded: boolean;
 };
 
-type CommonProps = {
+type TCommonProps = {
   complete: boolean;
+};
+
+type TDateView = {
+  date: TDate;
 };
 
 export const DatePicker = styled(ReactDatePicker)`
@@ -59,7 +65,7 @@ export const DeleteButton = styled.button`
   }
 `;
 
-export const Main = styled.div<CommonProps>`
+export const Main = styled.div<TCommonProps>`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -78,7 +84,7 @@ export const Content = styled.div`
 
 export const Header = styled.header``;
 
-export const Input = styled.input.attrs({ type: 'text' })<CommonProps>`
+export const Input = styled.input.attrs({ type: 'text' })<TCommonProps>`
   width: 100%;
   color: ${({ complete }) => (complete ? '#9c9c9d' : '#eaeaea')};
   font-size: 20px;
@@ -95,18 +101,23 @@ export const Input = styled.input.attrs({ type: 'text' })<CommonProps>`
   }
 `;
 
-export const Actions = styled.div<ActionsProps>`
-  margin: 8px 0 0 7px;
+export const Actions = styled.div<TActionsProps>`
+  margin: ${({ expanded }) => (expanded ? '8px 0 0 7px' : '0 0 0 7px')};
   height: ${({ expanded }) => (expanded ? '23px' : '0')};
   opacity: ${({ expanded }) => (expanded ? '1' : '0')};
+  visibility: ${({ expanded }) => (expanded ? 'visible' : 'hidden')};
   transition: 0.25s;
 `;
 
-export const DateView = styled.span`
+export const DateView = styled.span<TDateView>`
   color: #999a9a;
   display: block;
   margin: 4px 0 0 7px;
+  height: ${({ date }) => (date === null ? '0' : '18px')};
+  opacity: ${({ date }) => (date === null ? '0' : '1')};
+  visibility: ${({ date }) => (date === null ? 'hidden' : 'visible')};
   cursor: default;
+  transition: 0.25s;
 `;
 
 export const Icon = styled.svg``;

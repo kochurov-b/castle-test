@@ -101,7 +101,7 @@ const renderHeader: TRenderHeader = ({
       onBlur={onBlurTitle}
       disabled={complete}
     />
-    {date !== null && <DateView>{generateDateFormat(date)}</DateView>}
+    <DateView date={date}>{generateDateFormat(date)}</DateView>
   </Header>
 );
 
