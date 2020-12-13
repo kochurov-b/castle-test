@@ -30,7 +30,7 @@ type TUseReminderExpected = {
   titleRef: TTitleRef;
   onKeyDownTitle: TOnKeyDownTitle;
   onChangeTitle: TOnChangeTitle;
-  onFocusInput: () => void;
+  onFocusTitle: () => void;
   onBlurTitle: TOnBlurTitle;
   onDelete: () => void;
   onChangeDate: TOnChangeDate;
@@ -80,7 +80,7 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     handleClickOutside,
   );
 
-  const handleFocusInput = () => {
+  const handleFocusTitle = () => {
     setExpanded(true);
     setListenerToDocument();
   };
@@ -138,7 +138,7 @@ export const useReminder: TUseReminder = (reminder, onChange) => {
     titleRef,
     onKeyDownTitle: handleKeyDownTitle,
     onChangeTitle: handleChangeTitle,
-    onFocusInput: handleFocusInput,
+    onFocusTitle: handleFocusTitle,
     onBlurTitle: handleBlurTitle,
     onDelete: handleDelete,
     onChangeDate: handleChangeDate,

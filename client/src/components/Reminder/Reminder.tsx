@@ -1,4 +1,4 @@
-import React, { FC, memo, MouseEvent, MutableRefObject } from 'react';
+import React, { FC, memo, MouseEvent } from 'react';
 
 import { Checkbox } from '../Checkbox/Checkbox';
 import {
@@ -41,7 +41,7 @@ type TRenderHeaderArgs = {
   titleRef: TTitleRef;
   onKeyDownTitle: TOnKeyDownTitle;
   onChangeTitle: TOnChangeTitle;
-  onFocusInput: () => void;
+  onFocusTitle: () => void;
   onBlurTitle: TOnBlurTitle;
 };
 
@@ -90,7 +90,7 @@ const renderHeader: TRenderHeader = ({
   titleRef,
   onKeyDownTitle,
   onChangeTitle,
-  onFocusInput,
+  onFocusTitle,
   onBlurTitle,
 }) => (
   <Header>
@@ -100,7 +100,7 @@ const renderHeader: TRenderHeader = ({
       value={title}
       onKeyDown={onKeyDownTitle}
       onChange={onChangeTitle}
-      onFocus={onFocusInput}
+      onFocus={onFocusTitle}
       onBlur={onBlurTitle}
       disabled={complete}
     />
@@ -161,7 +161,7 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
     onDelete,
     onKeyDownTitle,
     onChangeTitle,
-    onFocusInput,
+    onFocusTitle,
     onBlurTitle,
     onChangeDate,
     onChangeCompleteCustom,
@@ -178,7 +178,7 @@ export const Reminder: FC<TProps> = memo(({ reminder, onChange }) => {
           titleRef,
           onKeyDownTitle,
           onChangeTitle,
-          onFocusInput,
+          onFocusTitle,
           onBlurTitle,
         })}
         {renderActions({
