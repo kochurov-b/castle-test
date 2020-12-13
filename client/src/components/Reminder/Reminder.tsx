@@ -1,4 +1,5 @@
 import React, { FC, memo, MouseEvent } from 'react';
+import moment from 'moment';
 
 import { Checkbox } from '../Checkbox/Checkbox';
 import {
@@ -72,15 +73,11 @@ type TRenderIconArgs = {
 type TRenderIcon = (args: TRenderIconArgs) => JSX.Element;
 
 const generateDateFormat: TGenerateDateFormat = (dateTime) => {
-  if (dateTime !== null) {
-    const date = new Date(dateTime);
-    const month = date.toLocaleString('default', { month: 'long' });
-    const day = date.getDate();
-
-    return `${day} ${month}`;
+  if (dateTime === null) {
+    return '';
   }
 
-  return '';
+  return moment(dateTime).format('DD MMMM');
 };
 
 const renderHeader: TRenderHeader = ({
@@ -104,7 +101,7 @@ const renderHeader: TRenderHeader = ({
       onBlur={onBlurTitle}
       disabled={complete}
     />
-    {date && <DateView>{generateDateFormat(date)}</DateView>}
+    {date !== null && <DateView>{generateDateFormat(date)}</DateView>}
   </Header>
 );
 
@@ -114,7 +111,7 @@ const renderActions: TRenderActions = ({ expanded, date, onChangeDate }) => (
       isClearable
       selected={date}
       onChange={onChangeDate}
-      minDate={new Date()}
+      minDate={moment().toDate()}
       dateFormat="dd/MM/yyyy"
       placeholderText="Add date"
     />
