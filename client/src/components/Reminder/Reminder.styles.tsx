@@ -31,6 +31,7 @@ export const DatePicker = styled(ReactDatePicker)`
     &::after {
       font-size: 17px;
       padding: 0;
+      color: #eaeaea;
       background-color: transparent;
     }
 
@@ -44,9 +45,9 @@ export const DeleteButton = styled.button`
   position: absolute;
   top: 0;
   right: 0;
-  width: 27px;
-  height: 27px;
-  border-radius: 0 15px 0 15px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
   border: 0;
   padding: 4px;
   background-color: #b86464;
@@ -111,7 +112,7 @@ export const DateView = styled.span`
 export const Icon = styled.svg``;
 
 export const Path = styled.path`
-  stroke: #232425;
+  stroke: #eaeaea;
   fill: transparent;
   stroke-linecap: round;
   stroke-width: 4;
