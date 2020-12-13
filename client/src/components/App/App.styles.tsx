@@ -44,9 +44,10 @@ export const Button = styled.button`
   color: #eaeaea;
   font-size: 16px;
   line-height: 21px;
+  border: 1px solid #dddddd;
   background-color: transparent;
-  padding: 4px 8px;
-  border: 0;
+  margin-left: 12px;
+  padding: 2px 8px;
   cursor: pointer;
   border-radius: 5px;
   transition: 0.25s;
@@ -62,10 +63,12 @@ export const Info = styled.div`
   align-items: center;
   margin-bottom: 24px;
   border-bottom: 2px solid #363738;
+  padding-bottom: 8px;
 `;
 
 export const TasksNumber = styled.span`
-  display: block;
+  display: flex;
+  flex: 1 0;
   color: #eaeaea;
   font-size: 16px;
   line-height: 21px;
@@ -91,4 +94,17 @@ export const Loading = styled.span`
 
 export const Error = styled.span`
   color: red;
+`;
+
+export const Group = styled.div`
+  margin-top: 28px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+`;
+
+export const GroupTitle = styled.h3`
+  color: #eaeaea;
+  margin: 0 0 10px 0;
 `;

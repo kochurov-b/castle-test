@@ -1,9 +1,10 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import { TReminder } from '../../apollo/reminder/reminder.types';
+import { TOnChange as TonChangeGroupByDateDate } from '../Select/Select.types';
 import { Reminder } from '../Reminder/Reminder';
-import { DEFAULT_REMINDER } from '../Reminder/Reminder.hook';
-import { useApp } from './App.hook';
+import { Select } from '../Select/Select';
+import { SELECT_DATA, useApp } from './App.hook';
 import {
   Button,
   Container,
@@ -17,8 +18,34 @@ import {
   Content,
   Loading,
   Error,
+  Group,
+  GroupTitle,
 } from './App.styles';
-import { TActionFactory, TOnToggleShowAll } from './App.types';
+import {
+  TActionFactory,
+  TData,
+  TGenerateDateFormat,
+  TGroup,
+  TOnToggleShowAll,
+} from './App.types';
+
+interface ICommonArgs {
+  dateFormat: TGenerateDateFormat;
+  actionFactory: TActionFactory;
+}
+
+interface IRenderContentArgs extends ICommonArgs {
+  data: TData;
+  loading: boolean;
+}
+
+interface IRenderDataArgs extends ICommonArgs {
+  data: TData;
+}
+
+interface IRenderGroupArgs extends ICommonArgs {
+  group: TGroup;
+}
 
 type TRenderReminders = (
   reminders: TReminder[],
@@ -30,29 +57,26 @@ type TRenderReminder = (
   actionFactory: TActionFactory,
 ) => JSX.Element;
 
-type TUpdateDataToShow = (data: TReminder[], showAll: boolean) => TReminder[];
-
-type TRenderContentArgs = {
-  data: TReminder[];
-  loading: boolean;
-  actionFactory: TActionFactory;
-};
-
-type TRenderContent = (args: TRenderContentArgs) => JSX.Element;
+type TRenderContent = (args: IRenderContentArgs) => JSX.Element;
 
 type TRenderHeaderArgs = {
   tasksNumber: number;
   buttonName: string;
   onToggleShowAll: TOnToggleShowAll;
+  onChangeGroupByDate: TonChangeGroupByDateDate;
 };
 
 type TRenderHeader = (args: TRenderHeaderArgs) => JSX.Element;
+
+type TRenderData = (args: IRenderDataArgs) => JSX.Element | JSX.Element[];
+
+type TRenderGroup = (args: IRenderGroupArgs) => JSX.Element[];
 
 const renderReminder: TRenderReminder = (reminder, actionFactory) => {
   const { id } = reminder;
 
   return (
-    <ListItem key={id}>
+    <ListItem>
       <Reminder
         reminder={reminder}
         onChange={(action, reminder) => actionFactory(reminder)[action]()}
@@ -67,36 +91,49 @@ const renderReminders: TRenderReminders = (reminders, actionFactory) => (
   </List>
 );
 
-const updateDataToShow: TUpdateDataToShow = (data, showAll) => {
-  const newData = [...data];
-  const lastReminder = data[data.length - 1];
-  const isEmptyData = data.length === 0;
-  const isLastNotEmpty = lastReminder && lastReminder.title !== '';
+const renderGroup: TRenderGroup = ({ group, dateFormat, actionFactory }) =>
+  Object.keys(group).map((key) => {
+    const reminder = group[key];
 
-  if (isEmptyData || isLastNotEmpty) {
-    newData.push(DEFAULT_REMINDER);
-  }
+    return (
+      <Group key={key}>
+        <GroupTitle>{dateFormat(reminder[0].date)}</GroupTitle>
+        {renderReminders(reminder, actionFactory)}
+      </Group>
+    );
+  });
 
-  if (showAll) return newData.sort((a, b) => (b.complete ? -1 : 1));
+const renderData: TRenderData = ({ data, dateFormat, actionFactory }) => {
+  if (Array.isArray(data)) return renderReminders(data, actionFactory);
 
-  return newData.filter(({ complete }) => !complete);
+  return renderGroup({ group: data, dateFormat, actionFactory });
 };
 
-const renderContent: TRenderContent = ({ data, loading, actionFactory }) => {
+const renderContent: TRenderContent = ({
+  data,
+  loading,
+  dateFormat,
+  actionFactory,
+}) => {
   if (loading) return <Loading>Loading ...</Loading>;
 
-  return <Content>{renderReminders(data, actionFactory)}</Content>;
+  if (Array.isArray(data))
+    return <Content>{renderReminders(data, actionFactory)}</Content>;
+
+  return <Content>{renderData({ data, dateFormat, actionFactory })}</Content>;
 };
 
 const renderHeader: TRenderHeader = ({
   tasksNumber,
   buttonName,
   onToggleShowAll,
+  onChangeGroupByDate,
 }) => (
   <Header>
     <Title>Reminders</Title>
     <Info>
       <TasksNumber>{tasksNumber} Tasks</TasksNumber>
+      <Select options={SELECT_DATA} onChange={onChangeGroupByDate} />
       <Button onClick={onToggleShowAll}>{buttonName}</Button>
     </Info>
   </Header>
@@ -104,30 +141,29 @@ const renderHeader: TRenderHeader = ({
 
 export const App: FC = () => {
   const {
-    reminders,
+    data,
     error,
-    showAll,
     loading,
-    onToggleShowAll,
+    buttonName,
+    tasksNumber,
+    dateFormat,
     actionFactory,
+    onToggleShowAll,
+    onChangeGroupByDate,
   } = useApp();
-  const buttonName = useMemo(() => (showAll ? 'Hide' : 'Show'), [showAll]);
-  const tasksNumber = useMemo(
-    () => reminders.filter(({ complete }) => !complete).length,
-    [reminders],
-  );
-  const data = useMemo(() => updateDataToShow(reminders, showAll), [
-    reminders,
-    showAll,
-  ]);
 
   if (error) return <Error>{error.message}</Error>;
 
   return (
     <Main>
       <Container>
-        {renderHeader({ tasksNumber, buttonName, onToggleShowAll })}
-        {renderContent({ data, loading, actionFactory })}
+        {renderHeader({
+          tasksNumber,
+          buttonName,
+          onToggleShowAll,
+          onChangeGroupByDate,
+        })}
+        {renderContent({ data, loading, dateFormat, actionFactory })}
       </Container>
     </Main>
   );
