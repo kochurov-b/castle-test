@@ -9,7 +9,10 @@ import { useQueryGetReminders } from '../../apollo/reminder/query/getReminders/g
 import { TReminder } from '../../apollo/reminder/reminder.types';
 import { useGroupByDate } from '../../hooks/useGroupByDate/useGroupByDate';
 import { EGroup } from '../../hooks/useGroupByDate/useGroupByDate.types';
-import { TOnChange as TonChangeGroupByDateDate } from '../Select/Select.types';
+import {
+  TOnChange as TonChangeGroupByDateDate,
+  TOption,
+} from '../Select/Select.types';
 import { DEFAULT_REMINDER } from '../Reminder/Reminder.hook';
 import { EAction } from '../Reminder/Reminder.types';
 import {
@@ -19,7 +22,7 @@ import {
   TOnToggleShowAll,
 } from './App.types';
 
-export const SELECT_DATA = [
+export const SELECT_DATA: TOption[] = [
   {
     label: 'None',
     value: '',
@@ -103,9 +106,11 @@ export const useApp = (): TUseAppExpected => {
   const { deleteReminder } = useMutationDeleteReminder();
   const [showAll, setShowAll] = useState<boolean>(false);
 
-  const { data, groupBy, onChange: onChangeGroupByDate } = useGroupByDate<
-    TReminder
-  >(updateDataToShow(reminders, showAll));
+  const {
+    data,
+    groupBy,
+    onChange: onChangeGroupByDate,
+  } = useGroupByDate<TReminder>(updateDataToShow(reminders, showAll));
 
   const buttonName: string = useMemo(() => (showAll ? 'Hide' : 'Show'), [
     showAll,

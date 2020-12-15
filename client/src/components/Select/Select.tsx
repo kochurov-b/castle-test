@@ -1,12 +1,7 @@
 import React, { FC, memo } from 'react';
 
 import { Select as SelectUI, Option } from './Select.styles';
-import { TOnChange } from './Select.types';
-
-type TOption = {
-  label: string;
-  value: string;
-};
+import { TOnChange, TOption } from './Select.types';
 
 type TProps = {
   options: TOption[];
