@@ -1,4 +1,5 @@
 import express, { Express } from 'express';
+import 'graphql-import-node';
 
 import { config } from './config/config';
 import { apolloSerer } from './graphql/graphql';
