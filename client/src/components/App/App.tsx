@@ -31,22 +31,22 @@ import {
 } from './App.types';
 
 interface ICommonArgs {
+  data: TData;
   dateFormat: TGenerateDateFormat;
   actionFactory: TActionFactory;
 }
 
 interface IRenderContentArgs extends ICommonArgs {
-  data: TData;
   loading: boolean;
 }
 
-interface IRenderDataArgs extends ICommonArgs {
-  data: TData;
-}
+interface IRenderDataArgs extends ICommonArgs {}
 
-interface IRenderGroupArgs extends ICommonArgs {
+interface IRenderGroupArgs extends TCommonArgsWithoutData {
   group: TGroup;
 }
+
+type TCommonArgsWithoutData = Omit<ICommonArgs, 'data'>;
 
 type TRenderReminders = (
   reminders: TReminder[],
