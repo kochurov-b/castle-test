@@ -14,7 +14,7 @@ export const Container = styled.div`
   width: 100%;
   max-width: 650px;
   height: calc(100vh - 80px);
-  padding: 40px 60px;
+  padding: 40px 0;
   background-color: #232425;
 `;
 
@@ -54,7 +54,10 @@ export const ListItem = styled.li`
   }
 `;
 
-export const Header = styled.header``;
+export const Header = styled.header`
+  padding: 0 60px;
+  margin-bottom: 24px;
+`;
 
 export const Title = styled.h1`
   color: #eaeaea;
@@ -83,7 +86,6 @@ export const Info = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
   border-bottom: 2px solid #363738;
   padding-bottom: 8px;
 `;
@@ -100,6 +102,7 @@ export const TasksNumber = styled.span`
 export const Content = styled.div`
   height: 100%;
   overflow-y: scroll;
+  padding: 0 60px;
 `;
 
 export const Loading = styled.span`
